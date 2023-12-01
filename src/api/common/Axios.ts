@@ -17,7 +17,7 @@ function setBaseUrl($http: AxiosInstance, baseUrl: string) {
   $http.defaults.baseURL = baseUrl;
 }
 
-function getBaseUrl() {
+export function getBaseUrl() {
   return Configuration.value('VITE_VUE_APP_API_URL');
 }
 

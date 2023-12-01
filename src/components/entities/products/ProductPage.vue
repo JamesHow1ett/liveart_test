@@ -39,7 +39,14 @@
               label="Description"
               variant="outlined"
               hide-details="auto"
-              data-test="product-categoryId"
+              data-test="product-description"
+            />
+          </v-col>
+          <v-col cols="12">
+            <thumbnail-block
+              :src="state.entity.medias.thumbnail[0]?.path"
+              :product-name="state.entity.name"
+              @update:file="handleAttachFile"
             />
           </v-col>
         </v-row>
@@ -49,11 +56,13 @@
 </template>
 
 <script lang="ts">
+// @ts-ignore
 import EntityPage from '@/components/common/EntityPage.vue';
 import { defineComponent, onBeforeMount, reactive, watch, computed, ref, Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { Product } from '../../../models/entities/Product';
+import ThumbnailBlock from '../../common/ThumbnailBlock.vue';
 
 interface State {
   entity: Product;
@@ -65,6 +74,7 @@ const Component = defineComponent({
 
   components: {
     EntityPage,
+    ThumbnailBlock,
   },
 
   props: {
@@ -110,12 +120,26 @@ const Component = defineComponent({
       name: [(v: string) => !!v || 'Name is required'],
     };
 
+    function handleAttachFile(file: File | null) {
+      if (file === null) {
+        state.entity = {
+          ...state.entity,
+          medias: {
+            ...state.entity.medias,
+            thumbnail: [],
+          },
+        };
+      }
+      Object.assign(product, { file });
+    }
+
     return {
       state,
       title,
       rules,
-      isNew,
       listCategory,
+      isNew,
+      handleAttachFile,
     };
   },
 });
