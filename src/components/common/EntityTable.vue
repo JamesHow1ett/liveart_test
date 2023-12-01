@@ -39,12 +39,18 @@
           </template>
 
           <template #[`item.previewImage`]="{ item }">
-            <img
-              :src="item.columns.previewImage"
-              :alt="item.columns.previewImage"
-              width="50"
-              height="50"
-            />
+            <slot
+              name="thumbnail"
+              :thumbnail="item.raw.medias.thumbnail"
+              :product-name="item.columns.name"
+            >
+              <img
+                :src="item.raw.medias.thumbnail"
+                :alt="`${item.columns.name}-thumbnail`"
+                width="50"
+                height="50"
+              />
+            </slot>
           </template>
 
           <template #[`item.template`]="{ item }">
@@ -125,6 +131,7 @@ import { PropType } from 'vue';
 import TableHeader from './TableHeader.vue';
 import Pagination from './Pagination.vue';
 import { VDataTableServer } from 'vuetify/labs/components';
+// @ts-ignore
 import Entity from '@/models/entities/Entity';
 
 interface TableOptions {

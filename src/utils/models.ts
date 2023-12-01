@@ -27,3 +27,16 @@ export function mapValueToInterface(input: any) {
 
   return res;
 }
+
+export function mapToFormData(source: object, fields: string[]): FormData {
+  const formData = new FormData();
+
+  fields.forEach(key => {
+    const value = source[key];
+    const normalizedValue = value != null ? value : String(value);
+
+    formData.append(key, normalizedValue);
+  });
+
+  return formData;
+}

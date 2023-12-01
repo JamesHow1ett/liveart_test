@@ -5,7 +5,7 @@ export type ValidatorFn = (value: any) => true | string;
 export function supportedMedias(formats: string[] = allowedFileTypes): ValidatorFn {
   return (file: File[] | null) => {
     const isValidMediaFormat = Array.isArray(file) && formats.includes(file[0].type);
-    return isValidMediaFormat || 'Supported .jpeg or .png files only';
+    return isValidMediaFormat || `Supported ${allowedFileTypes.join(', ')} files only`;
   };
 }
 
