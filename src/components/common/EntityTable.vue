@@ -105,6 +105,10 @@
             </v-btn>
           </template>
 
+          <template #[`item.status`]="{ item }">
+            <slot name="status" :item="item.raw"></slot>
+          </template>
+
           <template #bottom>
             <v-divider />
             <slot name="bottom">

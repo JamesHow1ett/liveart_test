@@ -49,7 +49,7 @@ import { computed, defineComponent, reactive, watch } from 'vue';
 import { RouteRecordRaw, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { Store } from 'vuex';
-import { RootState } from '../../store/Store.ts';
+import { RootState } from '../../store/Store';
 import { useDisplay } from 'vuetify';
 
 interface State {

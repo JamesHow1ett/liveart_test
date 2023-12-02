@@ -7,6 +7,13 @@
         :size="50"
       />
     </template>
+    <template #status="{ item }">
+      <product-visibility
+        :is-hidden="item.hidden"
+        view="table"
+        @change:visibility="handleChangeProductVisibility"
+      />
+    </template>
   </entity-table>
 </template>
 
@@ -15,6 +22,7 @@ import { defineComponent, reactive } from 'vue';
 import { EntityType } from '../../../store/entityModules/types';
 import EntityTable from '../../common/EntityTable.vue';
 import ThumbnailView from '../../common/ThumbnailView.vue';
+import ProductVisibility from '../../common/ProductVisibilityBlock.vue';
 
 const Component = defineComponent({
   name: 'ProductTable',
@@ -22,6 +30,7 @@ const Component = defineComponent({
   components: {
     EntityTable,
     ThumbnailView,
+    ProductVisibility,
   },
 
   setup() {
@@ -41,12 +50,18 @@ const Component = defineComponent({
         { title: 'Category ID', key: 'categoryId', sortable: true },
         { title: 'Description', key: 'description', sortable: false },
         { title: 'Details', key: 'actions', sortable: false },
+        { title: 'Status', key: 'status', sortable: false, editable: true },
       ],
     });
+
+    function handleChangeProductVisibility(isHidden: boolean): void {
+      console.log('isHidden: ', isHidden);
+    }
 
     return {
       entityType,
       state,
+      handleChangeProductVisibility,
     };
   },
 });
