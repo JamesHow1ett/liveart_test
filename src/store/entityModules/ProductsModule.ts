@@ -4,6 +4,9 @@ import { SearchQueryFilters } from '../../models/filters/SearchQueryFilters';
 import { CrudModule } from '../entityModules/CrudModule';
 import { Product } from '../../models/entities/Product';
 import { EntityType } from '../entityModules/types';
+import { getEntityApiClient } from '../../api/utils/GetClient';
+import { AlertColor, AlertMessageData, dispatchAlert } from '../../utils/alerts';
+
 class ProductModule extends CrudModule<Product, ProductDTO> {
   constructor() {
     super();
@@ -37,6 +40,58 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
 
     this.actions = {
       ...this.actions,
+
+      async patchItem(
+        { state, commit, dispatch },
+        { productId, product }: { productId: string; product: Partial<Product> },
+      ) {
+        commit('setLoading', true);
+
+        const alertData: AlertMessageData = {
+          entityName: state.entityType,
+          action: 'update',
+          id: productId,
+        };
+
+        try {
+          const apiClient = getEntityApiClient(state.entityType);
+
+          await apiClient.patchItem(productId, product);
+
+          dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(AlertColor.ERROR, alertData, dispatch);
+        } finally {
+          commit('setLoading', false);
+        }
+      },
+
+      async patchAll(
+        { state, commit, dispatch },
+        { productsId, product }: { productsId: string[]; product: Partial<Product> },
+      ) {
+        commit('setLoading', true);
+
+        const alertData: AlertMessageData = {
+          entityName: state.entityType,
+          action: 'update',
+          id: productsId,
+        };
+
+        try {
+          const apiClient = getEntityApiClient(state.entityType);
+
+          await apiClient.patchAll(productsId, product);
+
+          dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(AlertColor.ERROR, alertData, dispatch);
+        } finally {
+          commit('setLoading', false);
+        }
+      },
 
       setSearchValue({ getters, commit }, value: string | null) {
         commit('setQueryFilters', {

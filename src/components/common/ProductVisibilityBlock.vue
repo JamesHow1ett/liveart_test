@@ -31,7 +31,11 @@ const Component = defineComponent({
   name: 'ProductVisibilityBlock',
 
   props: {
-    isHidden: {
+    productId: {
+      type: String,
+      required: true,
+    },
+    hidden: {
       type: Boolean,
       required: false,
       default: true,
@@ -51,7 +55,7 @@ const Component = defineComponent({
   emits: ['change:visibility', 'update:isHidden'],
 
   setup(props, ctx) {
-    const isHiddenRaw = ref(props.isHidden);
+    const isHiddenRaw = ref(props.hidden);
 
     const visibilityStatusText = computed(() =>
       isHiddenRaw.value ? 'This product is hidden' : 'This product is visible',
@@ -64,9 +68,12 @@ const Component = defineComponent({
     );
     const isFormView = computed(() => props.view === 'form');
 
-    function emitValue(value: boolean) {
-      ctx.emit('change:visibility', value);
-      ctx.emit('update:isHidden', value);
+    function emitValue(hidden: boolean) {
+      if (isFormView.value) {
+        ctx.emit('update:isHidden', hidden);
+      } else {
+        ctx.emit('change:visibility', { id: props.productId, hidden });
+      }
     }
 
     function handleChangeStatus(value: boolean) {

@@ -109,6 +109,7 @@ import { getEntityStorePath } from '../../store/entityModules/utils';
 import { getNounPluralForm } from '../../utils/formatting';
 import Confirmation from '../utils/Confirmation.vue';
 import { VSkeletonLoader } from 'vuetify/labs/components';
+import { productFormDataFields } from '../entities/products/utils/constants';
 
 const Component = defineComponent({
   name: 'EntityDialog',
@@ -152,13 +153,6 @@ const Component = defineComponent({
   },
 
   setup(props) {
-    const productCreateFormDataFields = ['categoryId', 'description', 'name', 'file'];
-    const productUpdateFormDataFields = [
-      ...productCreateFormDataFields,
-      'id',
-      'removeThumb',
-    ];
-
     const dialogVisible = true;
     const store = useStore();
     const router = useRouter();
@@ -170,7 +164,7 @@ const Component = defineComponent({
     );
     const confirmButtonText = computed(() => (props.isNew ? 'Create' : 'Save'));
     const formDataFieldList = computed(() =>
-      props.isNew ? productCreateFormDataFields : productUpdateFormDataFields,
+      props.isNew ? productFormDataFields.create : productFormDataFields.update,
     );
 
     function confirm() {

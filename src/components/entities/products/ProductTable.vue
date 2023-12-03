@@ -9,7 +9,8 @@
     </template>
     <template #status="{ item }">
       <product-visibility
-        :is-hidden="item.hidden"
+        :product-id="item.id"
+        :hidden="item.hidden"
         view="table"
         @change:visibility="handleChangeProductVisibility"
       />
@@ -19,6 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from 'vue';
+import { useStore } from 'vuex';
 import { EntityType } from '../../../store/entityModules/types';
 import EntityTable from '../../common/EntityTable.vue';
 import ThumbnailView from '../../common/ThumbnailView.vue';
@@ -34,6 +36,7 @@ const Component = defineComponent({
   },
 
   setup() {
+    const store = useStore();
     const entityType = EntityType.PRODUCT;
 
     const state = reactive({
@@ -54,8 +57,17 @@ const Component = defineComponent({
       ],
     });
 
-    function handleChangeProductVisibility(isHidden: boolean): void {
-      console.log('isHidden: ', isHidden);
+    async function handleChangeProductVisibility({
+      id,
+      hidden,
+    }: {
+      hidden: boolean;
+      id: string;
+    }): Promise<void> {
+      await store.dispatch('productsModule/patchItem', {
+        productId: id,
+        product: { hidden },
+      });
     }
 
     return {

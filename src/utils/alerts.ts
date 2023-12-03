@@ -14,15 +14,17 @@ export enum AlertColor {
 export interface AlertMessageData {
   entityName: string;
   action: string;
-  id?: string;
+  id?: string | string[];
   single?: boolean;
 }
 
 export function getCorrectEntityName(data: AlertMessageData) {
+  const normilizedId = Array.isArray(data.id) ? data?.id.join(', ') : data.id;
+
   return data.single
     ? data.entityName
     : data.id
-    ? `${data.entityName} #${data.id}`
+    ? `${data.entityName} #${normilizedId}`
     : getNounPluralForm(data.entityName);
 }
 

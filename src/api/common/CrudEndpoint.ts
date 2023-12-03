@@ -7,6 +7,8 @@ export interface ICrudEndpoint<DTO> {
   fetchItem(itemId: number | string): Promise<DTO>;
   deleteItem(itemId: number | string): Promise<number>;
   updateItem(itemId: string | undefined, newItem: DTO): Promise<DTO>;
+  patchItem(itemId: string, item: Partial<DTO>): Promise<DTO>;
+  patchAll(itemId: string[], item: Partial<DTO>): Promise<DTO>;
   addItem(item: DTO): Promise<DTO>;
   fetchCount(): Promise<FetchCount>;
 }
@@ -42,6 +44,21 @@ export abstract class CrudEndpoint<DTO> implements ICrudEndpoint<DTO> {
     // Fetch updated item in case PUT doesn't return one
     if (response.status >= 200 && response.status < 400 && !response.data)
       return this.fetchItem(itemId);
+    return response.data;
+  }
+
+  public async patchItem(itemId: string, item: Partial<DTO>): Promise<DTO> {
+    const response = await $http.patch(`/${this.entityEndpoint}/${itemId}`, item);
+    return response.data;
+  }
+
+  public async patchAll(itemId: string[], item: Partial<DTO>): Promise<DTO> {
+    const searchParams = new URLSearchParams();
+    searchParams.append('where[id]', JSON.stringify(itemId));
+    const response = await $http.patch(
+      `/${this.entityEndpoint}?${searchParams.toString()}`,
+      item,
+    );
     return response.data;
   }
 
