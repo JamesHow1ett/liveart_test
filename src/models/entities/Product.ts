@@ -21,6 +21,7 @@ export class Product implements Entity {
     images: [],
     thumbnail: [],
   };
+  public hidden = false;
 
   constructor(initData: Partial<Product>) {
     Object.assign(this, initData);

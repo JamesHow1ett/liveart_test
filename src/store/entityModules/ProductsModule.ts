@@ -4,6 +4,10 @@ import { SearchQueryFilters } from '../../models/filters/SearchQueryFilters';
 import { CrudModule } from '../entityModules/CrudModule';
 import { Product } from '../../models/entities/Product';
 import { EntityType } from '../entityModules/types';
+import { getEntityApiClient } from '../../api/utils/GetClient';
+import { AlertColor, AlertMessageData, dispatchAlert } from '../../utils/alerts';
+import { getBulkActions } from './utils/bulkActionUtils';
+
 class ProductModule extends CrudModule<Product, ProductDTO> {
   constructor() {
     super();
@@ -37,6 +41,85 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
 
     this.actions = {
       ...this.actions,
+
+      async patchItem(
+        { state, commit, dispatch, getters },
+        { productId, product }: { productId: string; product: Partial<Product> },
+      ) {
+        commit('setLoading', true);
+
+        const alertData: AlertMessageData = {
+          entityName: state.entityType,
+          action: 'update',
+          id: productId,
+        };
+
+        try {
+          const apiClient = getEntityApiClient(state.entityType);
+
+          await apiClient.patchItem(productId, product);
+
+          const updatedProduct = getters.getItemById(productId);
+
+          commit('updateItem', Object.assign(updatedProduct, product));
+
+          dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(AlertColor.ERROR, alertData, dispatch);
+        } finally {
+          commit('setLoading', false);
+        }
+      },
+
+      async patchAll(
+        { state, commit, dispatch },
+        { productsId, product }: { productsId: string[]; product: Partial<Product> },
+      ) {
+        commit('setLoading', true);
+
+        const alertData: AlertMessageData = {
+          entityName: state.entityType,
+          action: 'update',
+          id: productsId,
+        };
+
+        try {
+          const apiClient = getEntityApiClient(state.entityType);
+
+          await apiClient.patchAll(productsId, product);
+          await dispatch('fetchItems');
+
+          dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(AlertColor.ERROR, alertData, dispatch);
+        } finally {
+          commit('setLoading', false);
+        }
+      },
+
+      async bulk(
+        { state, dispatch },
+        { action, productsToApply }: { action: string; productsToApply: any[] },
+      ): Promise<void> {
+        const dispatchedAction = getBulkActions(action, productsToApply, dispatch);
+
+        try {
+          await Promise.all(dispatchedAction.map(actionFn => actionFn()));
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(
+            AlertColor.ERROR,
+            {
+              entityName: state.entityType,
+              action,
+              id: productsToApply.join(', '),
+            },
+            dispatch,
+          );
+        }
+      },
 
       setSearchValue({ getters, commit }, value: string | null) {
         commit('setQueryFilters', {

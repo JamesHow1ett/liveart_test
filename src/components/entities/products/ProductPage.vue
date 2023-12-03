@@ -49,6 +49,9 @@
               @update:file="handleAttachFile"
             />
           </v-col>
+          <v-col cols="12">
+            <product-visibility v-model:is-hidden="state.entity.hidden" />
+          </v-col>
         </v-row>
       </div>
     </template>
@@ -63,6 +66,7 @@ import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { Product } from '../../../models/entities/Product';
 import ThumbnailBlock from '../../common/ThumbnailBlock.vue';
+import ProductVisibility from '../../common/ProductVisibilityBlock.vue';
 
 interface State {
   entity: Product;
@@ -75,6 +79,7 @@ const Component = defineComponent({
   components: {
     EntityPage,
     ThumbnailBlock,
+    ProductVisibility,
   },
 
   props: {
