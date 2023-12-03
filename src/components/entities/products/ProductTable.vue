@@ -1,5 +1,11 @@
 <template>
   <entity-table :entity-type="entityType" :headers="state.headers">
+    <template #top-center="{ selected }">
+      <bulk-actions
+        :disabled="selected?.length === 0"
+        @apply:action="handleApplyBulkAction($event, selected)"
+      />
+    </template>
     <template #thumbnail="{ thumbnail, productName }">
       <thumbnail-view
         :src="thumbnail[0]?.path ?? ''"
@@ -25,6 +31,7 @@ import { EntityType } from '../../../store/entityModules/types';
 import EntityTable from '../../common/EntityTable.vue';
 import ThumbnailView from '../../common/ThumbnailView.vue';
 import ProductVisibility from '../../common/ProductVisibilityBlock.vue';
+import BulkActions from '../../utils/BulkActions.vue';
 
 const Component = defineComponent({
   name: 'ProductTable',
@@ -33,6 +40,7 @@ const Component = defineComponent({
     EntityTable,
     ThumbnailView,
     ProductVisibility,
+    BulkActions,
   },
 
   setup() {
@@ -70,10 +78,15 @@ const Component = defineComponent({
       });
     }
 
+    function handleApplyBulkAction(action: string, productsToApply: any[]): void {
+      store.dispatch('productsModule/bulk', { action, productsToApply });
+    }
+
     return {
       entityType,
       state,
       handleChangeProductVisibility,
+      handleApplyBulkAction,
     };
   },
 });

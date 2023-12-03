@@ -6,6 +6,7 @@ import { Product } from '../../models/entities/Product';
 import { EntityType } from '../entityModules/types';
 import { getEntityApiClient } from '../../api/utils/GetClient';
 import { AlertColor, AlertMessageData, dispatchAlert } from '../../utils/alerts';
+import { getBulkActions } from './utils/bulkActionUtils';
 
 class ProductModule extends CrudModule<Product, ProductDTO> {
   constructor() {
@@ -42,7 +43,7 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
       ...this.actions,
 
       async patchItem(
-        { state, commit, dispatch },
+        { state, commit, dispatch, getters },
         { productId, product }: { productId: string; product: Partial<Product> },
       ) {
         commit('setLoading', true);
@@ -57,6 +58,10 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
           const apiClient = getEntityApiClient(state.entityType);
 
           await apiClient.patchItem(productId, product);
+
+          const updatedProduct = getters.getItemById(productId);
+
+          commit('updateItem', Object.assign(updatedProduct, product));
 
           dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
         } catch (err) {
@@ -83,6 +88,7 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
           const apiClient = getEntityApiClient(state.entityType);
 
           await apiClient.patchAll(productsId, product);
+          await dispatch('fetchItems');
 
           dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
         } catch (err) {
@@ -90,6 +96,28 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
           dispatchAlert(AlertColor.ERROR, alertData, dispatch);
         } finally {
           commit('setLoading', false);
+        }
+      },
+
+      async bulk(
+        { state, dispatch },
+        { action, productsToApply }: { action: string; productsToApply: any[] },
+      ): Promise<void> {
+        const dispatchedAction = getBulkActions(action, productsToApply, dispatch);
+
+        try {
+          await Promise.all(dispatchedAction.map(actionFn => actionFn()));
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(
+            AlertColor.ERROR,
+            {
+              entityName: state.entityType,
+              action,
+              id: productsToApply.join(', '),
+            },
+            dispatch,
+          );
         }
       },
 

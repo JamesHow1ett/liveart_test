@@ -5,6 +5,7 @@
     <v-row>
       <v-col>
         <v-data-table-server
+          v-model="state.selectedItems"
           :headers="state.headers"
           :items="state.items"
           :items-length="state.total"
@@ -15,18 +16,22 @@
           :loading="state.loading"
           :hide-default-footer="true"
           class="elevation-1"
+          show-select
           @update:options="setOptions"
         >
           <template #top>
             <slot name="top">
-              <TableHeader :store-path="storePath">
+              <table-header :store-path="storePath">
                 <template #left>
                   <slot name="top-left" />
+                </template>
+                <template #center>
+                  <slot name="top-center" :selected="state.selectedItems" />
                 </template>
                 <template #right>
                   <slot name="top-right" />
                 </template>
-              </TableHeader>
+              </table-header>
 
               <v-divider />
             </slot>
@@ -152,6 +157,7 @@ interface State {
   headers: any[];
   editableHeaders: any[];
   options: TableOptions;
+  selectedItems: any[];
 }
 
 const Component = defineComponent({
@@ -191,6 +197,7 @@ const Component = defineComponent({
       total: computed(() => store.getters[`${storePath}/count`]),
       headers: props.headers,
       editableHeaders: editableHeaders(props.headers),
+      selectedItems: [],
       options: {
         page: computed(() => store.getters[`${storePath}/queryPage`]),
         itemsPerPage: computed(() => store.getters[`${storePath}/queryRowsPerPage`]),

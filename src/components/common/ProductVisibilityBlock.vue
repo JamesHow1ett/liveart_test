@@ -1,7 +1,7 @@
 <template>
   <v-switch
     v-if="isFormView"
-    :model-value="isHiddenRaw"
+    :model-value="hidden"
     :label="visibilityStatusText"
     :color="visibilityStatusColor"
     :false-value="true"
@@ -15,7 +15,7 @@
         <v-icon
           v-bind="props"
           :color="visibilityStatusColor"
-          @click="handleChangeStatus(!isHiddenRaw)"
+          @click="handleChangeStatus(!hidden)"
         >
           {{ visibilityStatusTableIcon }}
         </v-icon>
@@ -55,16 +55,14 @@ const Component = defineComponent({
   emits: ['change:visibility', 'update:isHidden'],
 
   setup(props, ctx) {
-    const isHiddenRaw = ref(props.hidden);
-
     const visibilityStatusText = computed(() =>
-      isHiddenRaw.value ? 'This product is hidden' : 'This product is visible',
+      props.hidden ? 'This product is hidden' : 'This product is visible',
     );
     const visibilityStatusColor = computed(() =>
-      isHiddenRaw.value ? 'blue-grey-lighten-3' : 'success',
+      props.hidden ? 'blue-grey-lighten-3' : 'success',
     );
     const visibilityStatusTableIcon = computed(() =>
-      isHiddenRaw.value ? 'mdi-eye-off-outline' : 'mdi-eye-outline',
+      props.hidden ? 'mdi-eye-off-outline' : 'mdi-eye-outline',
     );
     const isFormView = computed(() => props.view === 'form');
 
@@ -77,8 +75,7 @@ const Component = defineComponent({
     }
 
     function handleChangeStatus(value: boolean) {
-      isHiddenRaw.value = value;
-      emitValue(isHiddenRaw.value);
+      emitValue(value);
     }
 
     return {
@@ -86,7 +83,6 @@ const Component = defineComponent({
       visibilityStatusColor,
       visibilityStatusTableIcon,
       isFormView,
-      isHiddenRaw,
       handleChangeStatus,
     };
   },

@@ -54,7 +54,9 @@ export abstract class CrudEndpoint<DTO> implements ICrudEndpoint<DTO> {
 
   public async patchAll(itemId: string[], item: Partial<DTO>): Promise<DTO> {
     const searchParams = new URLSearchParams();
-    searchParams.append('where[id]', JSON.stringify(itemId));
+    itemId.forEach(id => {
+      searchParams.append('where[id][inq]', id);
+    });
     const response = await $http.patch(
       `/${this.entityEndpoint}?${searchParams.toString()}`,
       item,

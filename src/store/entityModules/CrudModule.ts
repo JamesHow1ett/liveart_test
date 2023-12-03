@@ -67,6 +67,10 @@ class CrudModule<Item extends Entity, ItemDTO extends Object>
     querySorting(state) {
       return state.queryFilters.sortFilter;
     },
+
+    getItemById(state) {
+      return (id: string) => state.items.find(item => item.id === id);
+    },
   };
 
   actions: ActionTree<IModuleState<Item, ItemDTO>, any> = {
