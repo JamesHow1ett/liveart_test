@@ -7,6 +7,8 @@ import { EntityType } from '../entityModules/types';
 import { getEntityApiClient } from '../../api/utils/GetClient';
 import { AlertColor, AlertMessageData, dispatchAlert } from '../../utils/alerts';
 import { getBulkActions } from './utils/bulkActionUtils';
+import Mapper from '../../models/mappers/Mapper';
+import { getEntityMapper } from '../../models/mappers/utils';
 
 class ProductModule extends CrudModule<Product, ProductDTO> {
   constructor() {
@@ -41,6 +43,74 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
 
     this.actions = {
       ...this.actions,
+
+      async addItem(
+        { state, commit, dispatch },
+        { item, fields }: { item: Product; fields: string[] },
+      ) {
+        commit('setLoading', true);
+
+        const alertData: AlertMessageData = {
+          entityName: state.entityType,
+          action: 'add',
+          single: true,
+        };
+
+        try {
+          const apiClient = getEntityApiClient(state.entityType);
+          const mapper = <Mapper<Product, ProductDTO>>getEntityMapper(state.entityType);
+          const mappedItem = mapper.mapToFormDataDTO(item, fields);
+
+          const response = await apiClient.addItem(mappedItem);
+          if (!response) return null;
+
+          const newItem = mapper.mapFromDTO(response);
+
+          commit('addItem', newItem);
+          commit('setSelectedItem', newItem);
+
+          dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(AlertColor.ERROR, alertData, dispatch);
+        } finally {
+          commit('setLoading', false);
+        }
+      },
+
+      async updateItem(
+        { state, commit, dispatch },
+        { item, fields }: { item: Product; fields: string[] },
+      ) {
+        commit('setLoading', true);
+
+        const alertData: AlertMessageData = {
+          entityName: state.entityType,
+          action: 'save',
+          id: item.id,
+        };
+
+        try {
+          const apiClient = getEntityApiClient(state.entityType);
+          const mapper = <Mapper<Product, ProductDTO>>getEntityMapper(state.entityType);
+          const mappedItem = mapper.mapToFormDataDTO(item, fields);
+
+          const response = await apiClient.updateItem(item.id, mappedItem);
+          if (!response) return null;
+
+          const newItem = mapper.mapFromDTO(response);
+
+          commit('updateItem', newItem);
+          commit('setSelectedItem', newItem);
+
+          dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
+        } catch (err) {
+          console.error(err);
+          dispatchAlert(AlertColor.ERROR, alertData, dispatch);
+        } finally {
+          commit('setLoading', false);
+        }
+      },
 
       async patchItem(
         { state, commit, dispatch, getters },
@@ -142,5 +212,6 @@ class ProductModule extends CrudModule<Product, ProductDTO> {
   }
 }
 
+// Ask question about this line: why it wasnt written as single line?
 const productsModule = new ProductModule();
 export default productsModule;

@@ -1,13 +1,18 @@
 import { EntityType } from './types';
 
 export function getEntityStorePath(entityType: EntityType): string {
-  switch (entityType) {
-    case EntityType.PRODUCT:
-      return 'productsModule';
-    case EntityType.CATEGORY:
-      return 'categoriesModule';
-    default:
-      console.error('No entity module matches provided entity type');
-      return '';
+  const storeModules = {
+    [EntityType.PRODUCT]: 'productsModule',
+    [EntityType.CATEGORY]: 'categoriesModule',
+    [EntityType.TAG]: 'tagsModule',
+  };
+
+  const storePath = storeModules[entityType];
+
+  if (!storePath) {
+    console.error('No entity module matches provided entity type');
+    return '';
   }
+
+  return storePath;
 }

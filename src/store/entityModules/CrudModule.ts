@@ -146,32 +146,25 @@ class CrudModule<Item extends Entity, ItemDTO extends Object>
       }
     },
 
-    async updateItem(
-      { state, commit, dispatch },
-      { item, fields }: { item: Item; fields: string[] },
-    ) {
+    async updateItem({ state, commit, dispatch }, newItem: Item) {
       commit('setLoading', true);
 
       const alertData: AlertMessageData = {
         entityName: state.entityType,
         action: 'save',
-        id: item.id,
+        id: newItem.id,
       };
 
       try {
         const apiClient = getEntityApiClient(state.entityType);
         const mapper = <Mapper<Item, ItemDTO>>getEntityMapper(state.entityType);
-        const mappedItem = fields.length
-          ? mapper.mapToFormDataDTO(item, fields)
-          : mapper.mapToDTO(item);
-
-        const response = await apiClient.updateItem(item.id, mappedItem);
+        const response = await apiClient.updateItem(newItem.id, mapper.mapToDTO(newItem));
         if (!response) return null;
 
-        const newItem = mapper.mapFromDTO(response);
+        const item = mapper.mapFromDTO(response);
 
-        commit('updateItem', newItem);
-        commit('setSelectedItem', newItem);
+        commit('updateItem', item);
+        commit('setSelectedItem', item);
 
         dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
       } catch (err) {
@@ -182,10 +175,7 @@ class CrudModule<Item extends Entity, ItemDTO extends Object>
       }
     },
 
-    async addItem(
-      { state, commit, dispatch },
-      { item, fields }: { item: Item; fields: string[] },
-    ) {
+    async addItem({ state, commit, dispatch }, newItem: Item) {
       commit('setLoading', true);
 
       const alertData: AlertMessageData = {
@@ -197,17 +187,14 @@ class CrudModule<Item extends Entity, ItemDTO extends Object>
       try {
         const apiClient = getEntityApiClient(state.entityType);
         const mapper = <Mapper<Item, ItemDTO>>getEntityMapper(state.entityType);
-        const mappedItem = fields.length
-          ? mapper.mapToFormDataDTO(item, fields)
-          : mapper.mapToDTO(item);
 
-        const response = await apiClient.addItem(mappedItem);
+        const response = await apiClient.addItem(mapper.mapToDTO(newItem));
         if (!response) return null;
 
-        const newItem = mapper.mapFromDTO(response);
+        const item = mapper.mapFromDTO(response);
 
-        commit('addItem', newItem);
-        commit('setSelectedItem', newItem);
+        commit('addItem', item);
+        commit('setSelectedItem', item);
 
         dispatchAlert(AlertColor.SUCCESS, alertData, dispatch);
       } catch (err) {

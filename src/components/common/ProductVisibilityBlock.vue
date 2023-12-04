@@ -52,7 +52,7 @@ const Component = defineComponent({
     },
   },
 
-  emits: ['change:visibility', 'update:isHidden'],
+  emits: ['change:visibility', 'update:hidden'],
 
   setup(props, ctx) {
     const visibilityStatusText = computed(() =>
@@ -68,7 +68,7 @@ const Component = defineComponent({
 
     function emitValue(hidden: boolean) {
       if (isFormView.value) {
-        ctx.emit('update:isHidden', hidden);
+        ctx.emit('update:hidden', hidden);
       } else {
         ctx.emit('change:visibility', { id: props.productId, hidden });
       }

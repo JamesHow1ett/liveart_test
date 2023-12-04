@@ -1,4 +1,5 @@
 import Entity from './Entity';
+import { TagsDTO } from '../../api/dto/TagsDTO';
 
 export interface ProductMedia {
   filename: string;
@@ -22,6 +23,7 @@ export class Product implements Entity {
     thumbnail: [],
   };
   public hidden = false;
+  public tags: TagsDTO[] = [];
 
   constructor(initData: Partial<Product>) {
     Object.assign(this, initData);

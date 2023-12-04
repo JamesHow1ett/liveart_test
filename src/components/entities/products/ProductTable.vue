@@ -1,5 +1,5 @@
 <template>
-  <entity-table :entity-type="entityType" :headers="state.headers">
+  <entity-table :entity-type="entityType" :headers="state.headers" is-product-table>
     <template #top-center="{ selected }">
       <bulk-actions
         :disabled="selected?.length === 0"
@@ -12,6 +12,9 @@
         :product-name="productName"
         :size="50"
       />
+    </template>
+    <template #tags="{ item }">
+      <tag-component :items="item.tags" view="simple" hide-icon no-action />
     </template>
     <template #status="{ item }">
       <product-visibility
@@ -32,6 +35,7 @@ import EntityTable from '../../common/EntityTable.vue';
 import ThumbnailView from '../../common/ThumbnailView.vue';
 import ProductVisibility from '../../common/ProductVisibilityBlock.vue';
 import BulkActions from '../../utils/BulkActions.vue';
+import TagComponent from '../../common/TagComponent.vue';
 
 const Component = defineComponent({
   name: 'ProductTable',
@@ -41,6 +45,7 @@ const Component = defineComponent({
     ThumbnailView,
     ProductVisibility,
     BulkActions,
+    TagComponent,
   },
 
   setup() {
@@ -60,6 +65,7 @@ const Component = defineComponent({
         { title: 'Name', key: 'name', sortable: true, searchable: true },
         { title: 'Category ID', key: 'categoryId', sortable: true },
         { title: 'Description', key: 'description', sortable: false },
+        { title: 'Tags', key: 'tags', sortable: false },
         { title: 'Details', key: 'actions', sortable: false },
         { title: 'Status', key: 'status', sortable: false, editable: true },
       ],

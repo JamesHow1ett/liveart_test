@@ -169,7 +169,10 @@ const Component = defineComponent({
 
     function confirm() {
       store.dispatch(confirmActionType.value, {
-        item: props.item,
+        item: {
+          ...props.item,
+          tags: JSON.stringify(props.item.tags),
+        },
         fields: formDataFieldList.value,
       });
       close();

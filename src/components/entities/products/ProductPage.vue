@@ -50,7 +50,28 @@
             />
           </v-col>
           <v-col cols="12">
-            <product-visibility v-model:is-hidden="state.entity.hidden" />
+            <product-visibility
+              v-model:hidden="state.entity.hidden"
+              :product-id="state.entity.id ?? ''"
+            />
+          </v-col>
+          <v-col cols="12">
+            <h3>Product tags</h3>
+            <tag-component
+              :items="state.entity.tags"
+              action-type="remove"
+              view="simple"
+              @tag:remove="handleTagRemove"
+            />
+          </v-col>
+          <v-col cols="12">
+            <h3>List of availables tags (click to add them to product)</h3>
+            <tag-component
+              :items="availableProductTags"
+              action-type="add"
+              view="simple"
+              @tag:add="handleTagAdd"
+            />
           </v-col>
         </v-row>
       </div>
@@ -67,19 +88,22 @@ import { useStore } from 'vuex';
 import { Product } from '../../../models/entities/Product';
 import ThumbnailBlock from '../../common/ThumbnailBlock.vue';
 import ProductVisibility from '../../common/ProductVisibilityBlock.vue';
+import TagComponent from '../../common/TagComponent.vue';
 
 interface State {
-  entity: Product;
+  entity: Product & { removeThumb?: boolean };
+  allTags: any[];
   loading: boolean;
 }
 
 const Component = defineComponent({
-  name: 'ProductDialog',
+  name: 'ProductPage',
 
   components: {
     EntityPage,
     ThumbnailBlock,
     ProductVisibility,
+    TagComponent,
   },
 
   props: {
@@ -104,23 +128,37 @@ const Component = defineComponent({
         'categoriesModule/fetchAllItems',
         undefined,
       );
+      await store.dispatch('tagsModule/fetchItems');
     });
 
     const state = reactive({
-      entity: product,
+      entity: { ...product, removeThumb: false },
+      allTags: computed(() => store.getters['tagsModule/items']),
       loading: computed(() => store.getters['productsModule/loading']),
     }) as State;
-    watch(
-      () => store.getters['productsModule/selectedItem'],
-      (newValue: Product) => Object.assign(product, newValue),
-      { immediate: false, deep: true },
-    );
+
     const title = computed(() => {
       if (state.loading) return '';
       if (isNew()) return 'New Product';
       const getSelectedItem = store.getters['productsModule/selectedItem'];
       return getSelectedItem.name;
     });
+    const availableProductTags = computed(() =>
+      state.allTags.filter(
+        tag => !state.entity.tags.find(productTag => productTag.id === tag.id),
+      ),
+    );
+
+    watch(
+      () => store.getters['productsModule/selectedItem'],
+      (newValue: Product) => {
+        state.entity = {
+          ...Object.assign(product, newValue),
+        };
+      },
+      { immediate: false, deep: true },
+    );
+
     const rules = {
       name: [(v: string) => !!v || 'Name is required'],
     };
@@ -128,14 +166,37 @@ const Component = defineComponent({
     function handleAttachFile(file: File | null) {
       if (file === null) {
         state.entity = {
-          ...state.entity,
-          medias: {
-            ...state.entity.medias,
-            thumbnail: [],
-          },
+          ...Object.assign({}, state.entity, {
+            medias: {
+              ...state.entity.medias,
+              thumbnail: [],
+            },
+            removeThumb: true,
+          }),
+        };
+      } else {
+        state.entity = {
+          ...Object.assign({}, state.entity, {
+            file,
+            removeThumb: false,
+          }),
         };
       }
-      Object.assign(product, { file });
+    }
+
+    function handleTagRemove(tag: any) {
+      state.entity = {
+        ...Object.assign({}, state.entity, {
+          tags: state.entity.tags.filter(item => item.id !== tag.id),
+        }),
+      };
+    }
+    async function handleTagAdd(tag: any) {
+      state.entity = {
+        ...Object.assign({}, state.entity, {
+          tags: [...state.entity.tags, tag],
+        }),
+      };
     }
 
     return {
@@ -143,8 +204,11 @@ const Component = defineComponent({
       title,
       rules,
       listCategory,
+      availableProductTags,
       isNew,
       handleAttachFile,
+      handleTagRemove,
+      handleTagAdd,
     };
   },
 });
