@@ -4,6 +4,7 @@ const productCreateFormDataFields = [
   'name',
   'file',
   'hidden',
+  'tags',
 ];
 
 const productUpdateFormDataFields = [...productCreateFormDataFields, 'id', 'removeThumb'];

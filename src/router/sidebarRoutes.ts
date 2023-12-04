@@ -2,7 +2,7 @@ import { RouteRecordRaw } from 'vue-router';
 
 import CategoryTable from '../components/entities/categories/CategoryTable.vue';
 import CategoryDialog from '../components/entities/categories/CategoryDialog.vue';
-
+import TagsManager from '../components/entities/tags/TagsManager.vue';
 import ProductTable from '../components/entities/products/ProductTable.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -13,6 +13,17 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'Products',
       icon: 'mdi-hexagon',
+      isSideBarIncludes: true,
+    },
+  },
+
+  {
+    path: '/tags',
+    component: TagsManager,
+    name: 'Tags-item',
+    meta: {
+      title: 'Tags Manager',
+      icon: 'mdi-tag',
       isSideBarIncludes: true,
     },
   },

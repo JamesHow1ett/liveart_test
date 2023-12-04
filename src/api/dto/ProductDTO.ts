@@ -1,4 +1,6 @@
 import { CategoryDTO } from './CategoryDTO';
+import { TagsDTO } from './TagsDTO';
+
 export interface ProductDTO {
   id?: string;
   name: string;
@@ -6,4 +8,5 @@ export interface ProductDTO {
   description?: string;
   category?: CategoryDTO;
   file?: File;
+  tags: Array<TagsDTO>;
 }

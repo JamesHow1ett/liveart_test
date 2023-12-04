@@ -5,7 +5,7 @@
  * @param {any} input - object to clone
  */
 
-export function mapValueToInterface(input: any) {
+export function mapValueToInterface<T>(input: any): T {
   let res: any;
 
   if (Array.isArray(input)) res = [];

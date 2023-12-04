@@ -43,7 +43,7 @@
             <slot :name="header.value" :item="item" />
           </template>
 
-          <template #[`item.previewImage`]="{ item }">
+          <template v-if="isProductTable" #[`item.previewImage`]="{ item }">
             <slot
               name="thumbnail"
               :thumbnail="item.raw.medias.thumbnail"
@@ -98,6 +98,10 @@
 
           <template #[`item.price`]="{ item }">
             <slot> {{ item.columns.price }}$ </slot>
+          </template>
+
+          <template #[`item.tags`]="{ item }">
+            <slot name="tags" :item="item.raw" />
           </template>
 
           <template #[`item.totalPrice`]="{ item }">
@@ -177,6 +181,11 @@ const Component = defineComponent({
     entityType: {
       type: String as PropType<EntityType>,
       default: '',
+    },
+    isProductTable: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
 
